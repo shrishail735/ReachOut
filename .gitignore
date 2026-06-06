@@ -1,0 +1,21 @@
+# React
+reachout-frontend/node_modules/
+reachout-frontend/dist/
+
+# Maven
+**/target/
+
+# IDE
+.idea/
+.vscode/
+
+# Logs
+*.log
+
+# Environment files
+.env
+.env.*
+
+# OS
+.DS_Store
+Thumbs.db

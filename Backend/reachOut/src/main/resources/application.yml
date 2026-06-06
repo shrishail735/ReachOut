@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: job-service
+  datasource:
+    url: jdbc:mysql://localhost:3306/reachout_db
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}   # replace this
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update       # auto creates/updates tables for us
+    show-sql: true           # prints SQL in console so you can see what JPA does
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+  rabbitmq:
+    host: gerbil.rmq.cloudamqp.com
+    port: 5671
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+    virtual-host: nmaxcabd
+    ssl:
+      enabled: true
+
+server:
+  port: 8081
+
+jwt:
+  secret: reachout-super-secret-jwt-key-minimum-256-bits-long
+  expiration: 86400000       # 24 hours in milliseconds
+
+app:
+  rabbitmq:
+  exchange: reachout.exchange
+  queue: notification.queue
+  routing-key: notification.key
+

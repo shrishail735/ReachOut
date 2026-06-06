@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: notification-service
+  rabbitmq:
+    host: gerbil.rmq.cloudamqp.com
+    port: 5671
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+    virtual-host: nmaxcabd
+    ssl:
+      enabled: true
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${USERNAME}   # replace this
+    password: ${USERPASSWORD}       # replace this
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+server:
+  port: 8082   # different port from job service
+
+app:
+  rabbitmq:
+    exchange: reachout.exchange
+    queue: notification.queue
+    routing-key: notification.key
