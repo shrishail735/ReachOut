@@ -1,5 +1,8 @@
 package com.reachout.apigateway;
 
+import com.reachout.apigateway.config.LoadBalancerFilter;
+import com.reachout.apigateway.config.LoggingFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -10,8 +13,6 @@ import static org.springframework.cloud.gateway.server.mvc.filter.BeforeFilterFu
 import static org.springframework.cloud.gateway.server.mvc.handler.GatewayRouterFunctions.route;
 import static org.springframework.cloud.gateway.server.mvc.handler.HandlerFunctions.http;
 import static org.springframework.web.servlet.function.RequestPredicates.path;
-import org.springframework.cloud.gateway.server.mvc.filter.FilterFunctions;
-import java.time.Duration;
 
 @SpringBootApplication
 public class ApiGatewayApplication {
@@ -20,24 +21,24 @@ public class ApiGatewayApplication {
         SpringApplication.run(ApiGatewayApplication.class, args);
     }
 
+    @Autowired
+    private LoggingFilter loggingFilter;
+
+    @Autowired
+    private LoadBalancerFilter loadBalancerFilter;
+
     @Bean
     public RouterFunction<ServerResponse> jobServiceRoutes() {
         return route("job-auth-route")
                 .route(path("/api/auth/**"), http())
-                .before(uri("http://localhost:8081"))
-                .filter(FilterFunctions.requestRatelimiter(config -> {
-                    config.setReplenishRate(10);   // 10 requests per second
-                    config.setBurstCapacity(20);   // max burst of 20
-                }))
+                .filter(loadBalancerFilter)
+                .filter(loggingFilter)
                 .build()
                 .and(
                         route("job-applications-route")
-                                .route(path("/api/applications/**"), http())
-                                .before(uri("http://localhost:8081"))
-                                .filter(FilterFunctions.requestRatelimiter(config -> {
-                                    config.setReplenishRate(5);  // 5 requests per second
-                                    config.setBurstCapacity(10);
-                                }))
+                                .route(path("/api/applications/**").or(path("/api/dashboard/**")), http())
+                                .filter(loadBalancerFilter)
+                                .filter(loggingFilter)
                                 .build()
                 );
     }
@@ -47,6 +48,7 @@ public class ApiGatewayApplication {
         return route("notification-route")
                 .route(path("/api/notify/**"), http())
                 .before(uri("http://localhost:8082"))
+                .filter(loggingFilter)
                 .build();
     }
 }

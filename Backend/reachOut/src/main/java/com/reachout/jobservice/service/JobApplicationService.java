@@ -19,6 +19,7 @@ public class JobApplicationService {
     private final JobApplicationRepository jobRepo;
     private final UserRepository userRepository;
     private final NotificationPublisher notificationPublisher;
+    private final DashboardService dashboardService;
 
     // helper — gets currently logged in user from JWT
     private User getCurrentUser() {
@@ -31,6 +32,7 @@ public class JobApplicationService {
     // CREATE
     public JobApplicationResponse create(JobApplicationRequest request) {
         User user = getCurrentUser();
+        String email = user.getEmail();
 
         JobApplication app = JobApplication.builder()
                 .company(request.getCompany())
@@ -43,6 +45,7 @@ public class JobApplicationService {
                 .user(user)
                 .build();
 
+        dashboardService.evictStatsCache(email);
         return JobApplicationResponse.from(jobRepo.save(app));
     }
 
@@ -66,6 +69,7 @@ public class JobApplicationService {
     // UPDATE
     public JobApplicationResponse update(Long id, JobApplicationRequest request) {
         User user = getCurrentUser();
+        String email = user.getEmail();
         JobApplication app = jobRepo.findByIdAndUserId(id, user.getId())
                 .orElseThrow(() -> new RuntimeException("Application not found"));
 
@@ -96,14 +100,18 @@ public class JobApplicationService {
             ));
         }
 
+        dashboardService.evictStatsCache(email);
         return JobApplicationResponse.from(saved);
     }
 
     // DELETE
     public void delete(Long id) {
         User user = getCurrentUser();
+        String email = user.getEmail();
         JobApplication app = jobRepo.findByIdAndUserId(id, user.getId())
                 .orElseThrow(() -> new RuntimeException("Application not found"));
+
+        dashboardService.evictStatsCache(email);
         jobRepo.delete(app);
     }
 }
