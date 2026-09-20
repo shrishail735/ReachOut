@@ -5,6 +5,7 @@ import { useAuth } from './context/AuthContext';
 import { getApplications, updateApplication } from './api/applications';
 import KanbanColumn from './components/KanbanColumn';
 import AddApplicationModal from './components/AddApplicationModal';
+import Dashboard from './pages/Dashboard';
 import toast from 'react-hot-toast';
 
 const STATUSES = ['APPLIED', 'PHONE_SCREEN', 'INTERVIEW', 'OFFER', 'REJECTED'];
@@ -14,6 +15,7 @@ export default function App() {
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const { user, logout } = useAuth();
+  const [activeView, setActiveView] = useState('kanban');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -77,32 +79,49 @@ export default function App() {
 
   return (
     <div style={styles.page}>
-      {/* Navbar */}
-      <div style={styles.navbar}>
-        <span style={styles.logo}>ReachOut 🚀</span>
-        <div style={styles.navRight}>
-          <span style={styles.welcome}>Hi, {user?.name}</span>
-          <span style={styles.appCount}>{applications.length} applications</span>
-          <button onClick={() => setShowModal(true)} style={styles.addBtn}>+ Add Application</button>
-          <button onClick={handleLogout} style={styles.logoutBtn}>Logout</button>
-        </div>
-      </div>
+     {/* Navbar */}
+<div style={styles.navbar}>
+  <span style={styles.logo}>ReachOut 🚀</span>
+  <div style={styles.navTabs}>
+    <button
+      onClick={() => setActiveView('kanban')}
+      style={{ ...styles.navTab, ...(activeView === 'kanban' ? styles.navTabActive : {}) }}>
+      📋 Board
+    </button>
+    <button
+      onClick={() => setActiveView('dashboard')}
+      style={{ ...styles.navTab, ...(activeView === 'dashboard' ? styles.navTabActive : {}) }}>
+      📊 Analytics
+    </button>
+  </div>
+  <div style={styles.navRight}>
+    <span style={styles.welcome}>Hi, {user?.name}</span>
+    <button onClick={() => setShowModal(true)} style={styles.addBtn}>+ Add Application</button>
+    <button onClick={handleLogout} style={styles.logoutBtn}>Logout</button>
+  </div>
+</div>
 
-      {/* Kanban Board */}
-      <div style={styles.board}>
-        <DragDropContext onDragEnd={handleDragEnd}>
-          <div style={styles.columns}>
-            {STATUSES.map(status => (
-              <KanbanColumn
-                key={status}
-                status={status}
-                applications={byStatus(status)}
-                onDeleted={handleDeleted}
-              />
-            ))}
-          </div>
-        </DragDropContext>
+{/* Content */}
+{activeView === 'kanban' ? (
+  <div style={styles.board}>
+    <DragDropContext onDragEnd={handleDragEnd}>
+      <div style={styles.columns}>
+        {STATUSES.map(status => (
+          <KanbanColumn
+            key={status}
+            status={status}
+            applications={byStatus(status)}
+            onDeleted={handleDeleted}
+          />
+        ))}
       </div>
+    </DragDropContext>
+  </div>
+) : (
+  <Dashboard />
+)}
+
+    
 
       {showModal && (
         <AddApplicationModal
@@ -125,5 +144,8 @@ const styles = {
   logoutBtn: { padding: '8px 14px', background: 'none', border: '1px solid #ddd', borderRadius: '8px', fontSize: '14px', cursor: 'pointer', color: '#666' },
   board: { padding: '2rem', overflowX: 'auto' },
   columns: { display: 'flex', gap: '16px', minWidth: 'max-content' },
-  loading: { display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', fontSize: '16px', color: '#666' }
+  loading: { display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', fontSize: '16px', color: '#666' },
+  navTabs: { display: 'flex', gap: '4px', background: '#f0f4f8', padding: '4px', borderRadius: '10px' },
+navTab: { padding: '7px 16px', borderRadius: '8px', border: 'none', background: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 500, color: '#666' },
+navTabActive: { background: 'white', color: '#4f46e5', boxShadow: '0 1px 4px rgba(0,0,0,0.1)' },
 };
