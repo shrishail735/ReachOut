@@ -1,3 +1,4 @@
+import React from 'react';
 import { Draggable } from '@hello-pangea/dnd';
 import { deleteApplication } from '../api/applications';
 import toast from 'react-hot-toast';

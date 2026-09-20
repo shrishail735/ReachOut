@@ -17,8 +17,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class LoadBalancerFilter implements HandlerFilterFunction<ServerResponse, ServerResponse> {
 
     private final List<String> instances = List.of(
-            "http://localhost:8081",
-            "http://localhost:8083"
+            "http://localhost:8081"
+
     );
 
     private final AtomicInteger counter = new AtomicInteger(0);
