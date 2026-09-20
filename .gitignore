@@ -16,6 +16,13 @@ reachout-frontend/dist/
 .env
 .env.*
 
+# Credentials and tokens
+**/credentials.json
+**/tokens/
+**/StoredCredential
+**/*.pem
+**/*.p12
+
 # OS
 .DS_Store
 Thumbs.db
